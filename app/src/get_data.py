@@ -27,16 +27,23 @@ def get_race_id_lists():
 
 # ===================================================
 
-def get_race_info(soup):
+def get_race_info(soup, race_id: str) -> list:
+    race_info = [race_id]
+
     racedata = soup.find(class_="racedata fc")
     race_title = racedata.find("h1").text
     race_detail = racedata.find("span").text.replace(u'\xa0', u'')
     race_smalltxt = soup.find(class_="smalltxt").text.replace(u'\xa0', u'')
 
-    print(race_title)
-    print(race_detail)
-    print(race_detail.split("/"))
-    print(race_smalltxt.split(" "))
+    race_detail = race_detail.split("/")
+    for i, s in enumerate(race_detail[:-1]):
+        if i == 0:
+            race_info.append(s[:2])
+            race_info.append(s.replace(" ", "")[2:])
+        else:
+            race_info.append(s.replace(" ", "").split(":")[-1])
+    print(race_info)
+    return race_info
 
 def get_race_result(soup, race_id: str) -> list:
     table = soup.find(class_="race_table_01 nk_tb_common")
@@ -47,7 +54,11 @@ def get_race_result(soup, race_id: str) -> list:
         for j, s in enumerate(td):
             if j in [9, 15, 16, 17]:
                 continue
-            detail.append(s.text.replace("\n", ""))
+            if j in [3, 6]:
+                a = s.find("a")
+                detail.append(a.get("href").split("/")[2])
+            else:
+                detail.append(s.text.replace("\n", ""))
         detail = [race_id + str(i+1).zfill(2), race_id] + detail
         detail_list.append(detail)
     return detail_list
@@ -58,7 +69,7 @@ def get_race_from_id(race_id: str):
     r = requests.get(URL)
     soup = BeautifulSoup(r.content, "lxml")
 
-    #get_race_info(soup)
+    race_info = get_race_info(soup, race_id)
     horse_in_race_details = get_race_result(soup, race_id)
     make_database.insert_horse_in_race_details(horse_in_race_details)
 

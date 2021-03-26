@@ -8,15 +8,15 @@ def make_database():
 
     cur.execute("""
     CREATE TABLE IF NOT EXISTS horse_in_race (
-        id INTEGER PRIMARY KEY,
-        race_id INTEGER,
+        id TEXT PRIMARY KEY,
+        race_id TEXT,
         ord TEXT,
         post_position TEXT,
         gate TEXT,
-        horse_name TEXT,
+        horse_id TEXT,
         sex_age TEXT,
         saddle_weight TEXT,
-        jockey TEXT,
+        jockey_id TEXT,
         finish TEXT,
         margin TEXT,
         section_position TEXT,
@@ -26,7 +26,7 @@ def make_database():
         horse_weight TEXT,
         trainer TEXT,
         owner TEXT,
-        prize_money TEXT DEFAULT "0"
+        prize_money TEXT DEFAULT 0
     )""")
 
     conn.commit()
@@ -44,10 +44,10 @@ def insert_horse_in_race_details(horse_in_race_details):
         ord,
         post_position,
         gate,
-        horse_name,
+        horse_id,
         sex_age,
         saddle_weight,
-        jockey,
+        jockey_id,
         finish,
         margin,
         section_position,
