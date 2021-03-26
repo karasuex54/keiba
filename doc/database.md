@@ -1,9 +1,10 @@
 # database
 
-- race_detail
-- horse_in_race
+- RACE
+- RESULTS
 
-## race_detail
+## RACE
+
 | Column    | Type | Options     | Description      |
 | ----      | ---- | ----        | ----             |
 | id        | TEXT | PRIMARY KEY | race id          |
@@ -16,7 +17,7 @@
 | grade     | TEXT | -           | race grade       |
 | other     | TEXT | -           | other infomation |
 
-## horse_in_race
+## RESULTS
 
 | Column        | Type | Options     | Description              |
 | ----          | ---- | ----        | ----                     |

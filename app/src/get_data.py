@@ -79,7 +79,7 @@ def main():
     make_database.make_database()
 
     #get_race_id_lists()
-    get_race_from_id("202109010711")
+    get_race_from_id("202109010710")
 
 if __name__ == "__main__":
     main()

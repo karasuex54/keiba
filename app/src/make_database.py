@@ -7,26 +7,39 @@ def make_database():
     cur = conn.cursor()
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS horse_in_race (
+    CREATE TABLE IF NOT EXISTS race (
+        id TEXT PRIMARY KEY,
+        name TEXT,
+        surface TEXT,
+        distance TEXT,
+        weather TEXT,
+        condition TEXT,
+        place TEXT,
+        grade TEXT,
+        other TEXT
+    )
+    """)
+
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS results (
         id TEXT PRIMARY KEY,
         race_id TEXT,
         ord TEXT,
-        post_position TEXT,
-        gate TEXT,
+        post TEXT,
+        number TEXT,
         horse_id TEXT,
-        sex_age TEXT,
-        saddle_weight TEXT,
+        sex TEXT,
+        age TEXT,
+        penalty TEXT,
         jockey_id TEXT,
         finish TEXT,
         margin TEXT,
-        section_position TEXT,
-        g_3f TEXT,
-        win_odds TEXT,
         popular TEXT,
-        horse_weight TEXT,
-        trainer TEXT,
-        owner TEXT,
-        prize_money TEXT DEFAULT 0
+        odds TEXT,
+        g_3f TEXT,
+        corner TEXT,
+        stable TEXT,
+        weight TEXT
     )""")
 
     conn.commit()
