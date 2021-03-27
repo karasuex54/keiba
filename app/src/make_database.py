@@ -38,41 +38,39 @@ def make_database():
         odds TEXT,
         g_3f TEXT,
         corner TEXT,
-        stable TEXT,
+        stable_id TEXT,
         weight TEXT
     )""")
 
     conn.commit()
     conn.close()
 
-def insert_horse_in_race_details(horse_in_race_details):
+def insert_race(race):
     DB_name = "keiba.db"
     conn = sqlite3.connect(DB_name)
     cur = conn.cursor()
 
     cur.executemany("""
-    REPLACE INTO horse_in_race (
-        id,
-        race_id,
-        ord,
-        post_position,
-        gate,
-        horse_id,
-        sex_age,
-        saddle_weight,
-        jockey_id,
-        finish,
-        margin,
-        section_position,
-        g_3f,
-        win_odds,
-        popular,
-        horse_weight,
-        trainer,
-        owner,
-        prize_money
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-    )""", horse_in_race_details)
+    REPLACE INTO race (
+        id, name, surface, distance, weather, condition, place, grade, other
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, race)
+
+    conn.commit()
+    conn.close()
+
+def insert_results(result):
+    DB_name = "keiba.db"
+    conn = sqlite3.connect(DB_name)
+    cur = conn.cursor()
+
+    cur.executemany("""
+    REPLACE INTO results (
+        id, race_id, ord, post, number, horse_id, sex, age,
+        penalty, jockey_id, finish, margin, popular, odds, g_3f,
+        corner, stable_id, weight
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, result)
 
     conn.commit()
     conn.close()

@@ -4,82 +4,140 @@ import re
 import make_database
 
 import requests
+from requests.exceptions import Timeout, ConnectionError
 from bs4 import BeautifulSoup
 
 # ===================================================
 
+ERROR_DATE = []
+ERROR_RACE_ID = []
+
 def get_race_id_from_date(date: str):
+    global ERROR_DATE
+
+    race_id_from_date = []
+
     URL = "https://db.netkeiba.com/race/list/" + date
 
-    r = requests.get(URL)
+    try:
+        r = requests.get(URL, timeout=3.5)
+    except:
+        print("Error:", date)
+        ERROR_DATE.append(date)
+        return []
+
     soup = BeautifulSoup(r.content, "lxml")
 
     for a in soup.find_all("a", href=re.compile("/race/20")):
-        title = a.get("title")
         href = a.get("href")
-        print(title, href.split("/")[2])
+        if href[-1] == "/":
+            href = href[:-1]
+        race_id_from_date.append(href.split("/")[-1])
 
-def get_race_id_lists():
-    for date in range(20210306, 20210307):
+    return race_id_from_date
+
+def get_race_id_list():
+    race_id_list = []
+
+    date_list = []
+    for year in range(2020, 2022):
+        for month in range(1, 13):
+            for day in range(1, 32):
+                date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
+                if date_txt > "20210327":
+                    break
+                date_list.append(date_txt)
+
+    for date in date_list:
+        print(date, len(race_id_list))
         date_str = str(date)
-        get_race_id_from_date(date_str)
+        race_id_from_date = get_race_id_from_date(date_str)
+        race_id_list += race_id_from_date
         time.sleep(3)
+
+    return race_id_list
 
 # ===================================================
 
-def get_race_info(soup, race_id: str) -> list:
-    race_info = [race_id]
+def get_race(soup, race_id: str) -> list:
+    race = [race_id]
+    race_name = soup.find(class_="RaceName")
+    race.append(race_name.text.strip())
 
-    racedata = soup.find(class_="racedata fc")
-    race_title = racedata.find("h1").text
-    race_detail = racedata.find("span").text.replace(u'\xa0', u'')
-    race_smalltxt = soup.find(class_="smalltxt").text.replace(u'\xa0', u'')
+    race_data_01 = soup.find(class_="RaceData01")
+    race_data_01 = race_data_01.text.strip().replace("\n", "").replace(" ", "")
+    race_data_01 = race_data_01.split("/")
+    race += [race_data_01[1][0], race_data_01[1][1:]]
+    race.append(race_data_01[2].split(":")[1])
+    race.append(race_data_01[3].split(":")[1])
 
-    race_detail = race_detail.split("/")
-    for i, s in enumerate(race_detail[:-1]):
-        if i == 0:
-            race_info.append(s[:2])
-            race_info.append(s.replace(" ", "")[2:])
-        else:
-            race_info.append(s.replace(" ", "").split(":")[-1])
-    print(race_info)
-    return race_info
+    race_data_02 = soup.find(class_="RaceData02")
+    race_data_02 = race_data_02.text.strip().splitlines()
+    for i, data in enumerate(race_data_02):
+        if i == 1:
+            race.append(data)
+        elif i == 3:
+            race.append(data +" "+ race_data_02[i+1])
+        elif i == 6:
+            race.append(data +" "+ race_data_02[i+1] +" "+ race_data_02[i+2])
+
+    return [tuple(race)]
 
 def get_race_result(soup, race_id: str) -> list:
-    table = soup.find(class_="race_table_01 nk_tb_common")
-    detail_list = []
+    result = []
+
+    table = soup.find(id="All_Result_Table")
     for i, tr in enumerate(table.find_all("tr")[1:]):
-        td = tr.find_all("td")
-        detail = []
-        for j, s in enumerate(td):
-            if j in [9, 15, 16, 17]:
-                continue
-            if j in [3, 6]:
-                a = s.find("a")
-                detail.append(a.get("href").split("/")[2])
+        res = [race_id+str(i+1).zfill(2), race_id]
+        for j, td in enumerate(tr.find_all("td")):
+            if j in [3, 6, 13]:
+                href = td.find("a").get("href")
+                if href[-1] == "/":
+                    href = href[:-1]
+                res.append(href.split("/")[-1])
+            elif j == 4:
+                txt = td.text.strip()
+                res += [txt[0], txt[1]]
             else:
-                detail.append(s.text.replace("\n", ""))
-        detail = [race_id + str(i+1).zfill(2), race_id] + detail
-        detail_list.append(detail)
-    return detail_list
+                res.append(td.text.strip())
+        result.append(tuple(res))
+
+    return result
 
 def get_race_from_id(race_id: str):
-    URL = "https://db.netkeiba.com/race/" + race_id
+    global ERROR_RACE_ID
 
-    r = requests.get(URL)
+    URL = "https://race.netkeiba.com/race/result.html?race_id=" + race_id
+
+    try:
+        r = requests.get(URL, timeout = 3.5)
+    except:
+        print("Error:", race_id)
+        ERROR_RACE_ID.append(race_id)
+        return
+
     soup = BeautifulSoup(r.content, "lxml")
 
-    race_info = get_race_info(soup, race_id)
-    horse_in_race_details = get_race_result(soup, race_id)
-    make_database.insert_horse_in_race_details(horse_in_race_details)
+    race = get_race(soup, race_id)
+    make_database.insert_race(race)
+
+    result = get_race_result(soup, race_id)
+    make_database.insert_results(result)
 
 # ===================================================
 
 def main():
     make_database.make_database()
 
-    #get_race_id_lists()
-    get_race_from_id("202109010710")
+    race_id_list = get_race_id_list()
+    print("get_race_id_list finished")
+
+    for race_id in race_id_list:
+        print("get_race_from_id", race_id)
+        get_race_from_id(race_id)
+        time.sleep(3)
 
 if __name__ == "__main__":
     main()
+    print(ERROR_DATE)
+    print(ERROR_RACE_ID)
