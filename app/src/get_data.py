@@ -1,16 +1,44 @@
 import time
+from time import sleep
 import re
 
 import make_database
 
 import requests
-from requests.exceptions import Timeout, ConnectionError
 from bs4 import BeautifulSoup
-
-# ===================================================
 
 ERROR_DATE = []
 ERROR_RACE_ID = []
+
+# ===================================================
+
+def requests_get(url: str):
+    sleep(3)
+    cnt = 0
+    e = False
+    while cnt < 5:
+        try:
+            r = requests.get(url, timeout=3.5)
+            e = True
+            break
+        except:
+            cnt += 1
+            sleep(10)
+
+    return r, e
+
+def make_date_list() -> list:
+    date_list = []
+    for year in range(2020, 2021):
+        for month in range(1, 13):
+            for day in range(1, 32):
+                date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
+                if date_txt > "20210328":
+                    break
+                date_list.append(date_txt)
+    return date_list
+
+# ===================================================
 
 def get_race_id_from_date(date: str):
     global ERROR_DATE
@@ -19,9 +47,8 @@ def get_race_id_from_date(date: str):
 
     URL = "https://db.netkeiba.com/race/list/" + date
 
-    try:
-        r = requests.get(URL, timeout=3.5)
-    except:
+    r, e = requests_get(URL)
+    if e == False:
         print("Error:", date)
         ERROR_DATE.append(date)
         return []
@@ -39,21 +66,13 @@ def get_race_id_from_date(date: str):
 def get_race_id_list():
     race_id_list = []
 
-    date_list = []
-    for year in range(2020, 2022):
-        for month in range(1, 13):
-            for day in range(1, 32):
-                date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
-                if date_txt > "20210327":
-                    break
-                date_list.append(date_txt)
+    date_list = make_date_list()
 
-    for date in date_list:
-        print(date, len(race_id_list))
+    for i, date in enumerate(date_list):
+        print(date, len(race_id_list), "last:", len(date_list) - i)
         date_str = str(date)
         race_id_from_date = get_race_id_from_date(date_str)
         race_id_list += race_id_from_date
-        time.sleep(3)
 
     return race_id_list
 
@@ -62,6 +81,8 @@ def get_race_id_list():
 def get_race(soup, race_id: str) -> list:
     race = [race_id]
     race_name = soup.find(class_="RaceName")
+    if race_name == None:
+        return []
     race.append(race_name.text.strip())
 
     race_data_01 = soup.find(class_="RaceData01")
@@ -109,9 +130,8 @@ def get_race_from_id(race_id: str):
 
     URL = "https://race.netkeiba.com/race/result.html?race_id=" + race_id
 
-    try:
-        r = requests.get(URL, timeout = 3.5)
-    except:
+    r, e = requests_get(URL)
+    if e == False:
         print("Error:", race_id)
         ERROR_RACE_ID.append(race_id)
         return
@@ -119,6 +139,8 @@ def get_race_from_id(race_id: str):
     soup = BeautifulSoup(r.content, "lxml")
 
     race = get_race(soup, race_id)
+    if not race:
+        return
     make_database.insert_race(race)
 
     result = get_race_result(soup, race_id)
@@ -132,12 +154,17 @@ def main():
     race_id_list = get_race_id_list()
     print("get_race_id_list finished")
 
-    for race_id in race_id_list:
-        print("get_race_from_id", race_id)
+    for i, race_id in enumerate(race_id_list):
+        print("get_race_from_id", race_id, "last:", len(race_id_list) - i)
         get_race_from_id(race_id)
-        time.sleep(3)
+
+def test():
+    race_id = "200006010101"
+    get_race_from_id(race_id)
 
 if __name__ == "__main__":
     main()
+    #test()
+    print("="*40)
     print(ERROR_DATE)
     print(ERROR_RACE_ID)
