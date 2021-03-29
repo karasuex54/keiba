@@ -1,9 +1,9 @@
 # database
 
-- RACE
+- RACES
 - RESULTS
 
-## RACE
+## RACES
 
 | Column    | Type | Options     | Description      |
 | ----      | ---- | ----        | ----             |
@@ -39,3 +39,4 @@
 | corner        | TEXT | -           | order of passing corners |
 | stable        | TEXT | -           | stable id                |
 | weight        | TEXT | -           | horse weight             |
+| weight_dif    | TEXT | -           | horse weight difference   |

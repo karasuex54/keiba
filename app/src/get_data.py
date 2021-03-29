@@ -1,11 +1,11 @@
+import re
 import time
 from time import sleep
-import re
-
-import make_database
 
 import requests
 from bs4 import BeautifulSoup
+
+import make_database
 
 ERROR_DATE = []
 ERROR_RACE_ID = []
@@ -29,11 +29,11 @@ def requests_get(url: str):
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2020, 2021):
+    for year in range(2021, 2022):
         for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
-                if date_txt > "20210328":
+                if date_txt > "20210400":
                     break
                 date_list.append(date_txt)
     return date_list
@@ -119,6 +119,12 @@ def get_race_result(soup, race_id: str) -> list:
             elif j == 4:
                 txt = td.text.strip()
                 res += [txt[0], txt[1]]
+            elif j == 14:
+                txt = td.text.split("(")
+                if len(txt) == 1:
+                    res += ["", ""]
+                else:
+                    res += [txt[0], txt[1][:-1]]
             else:
                 res.append(td.text.strip())
         result.append(tuple(res))
@@ -159,7 +165,7 @@ def main():
         get_race_from_id(race_id)
 
 def test():
-    race_id = "200006010101"
+    race_id = "202107010109"
     get_race_from_id(race_id)
 
 if __name__ == "__main__":
