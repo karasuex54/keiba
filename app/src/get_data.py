@@ -147,7 +147,7 @@ def get_race_from_id(race_id: str):
     race = get_race(soup, race_id)
     if not race:
         return
-    make_database.insert_race(race)
+    make_database.insert_races(race)
 
     result = get_race_result(soup, race_id)
     make_database.insert_results(result)

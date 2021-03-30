@@ -46,7 +46,7 @@ def make_database():
     conn.commit()
     conn.close()
 
-def insert_race(race):
+def insert_races(race):
     DB_name = "keiba.db"
     conn = sqlite3.connect(DB_name)
     cur = conn.cursor()
