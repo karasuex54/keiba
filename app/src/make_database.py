@@ -1,5 +1,7 @@
 import sqlite3
 
+# ===================================================
+
 def make_database():
     #path = "../"
     DB_name = "keiba.db"
@@ -12,6 +14,7 @@ def make_database():
         name TEXT,
         surface TEXT,
         distance TEXT,
+        rotation TEXT,
         weather TEXT,
         condition TEXT,
         place TEXT,
@@ -46,6 +49,8 @@ def make_database():
     conn.commit()
     conn.close()
 
+# ===================================================
+
 def insert_races(race):
     DB_name = "keiba.db"
     conn = sqlite3.connect(DB_name)
@@ -53,8 +58,8 @@ def insert_races(race):
 
     cur.executemany("""
     REPLACE INTO races (
-        id, name, surface, distance, weather, condition, place, grade, other
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, name, surface, distance, rotation, weather, condition, place, grade, other
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, race)
 
     conn.commit()

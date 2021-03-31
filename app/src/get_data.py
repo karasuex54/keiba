@@ -12,8 +12,22 @@ ERROR_RACE_ID = []
 
 # ===================================================
 
+def strip_function(x):
+    if type(x) == str:
+        return x.strip()
+    else:
+        return x
+
+def time_to_seconds(time_txt: str) -> str:
+    txt = time_txt.split(":")
+    if len(txt) == 1:
+        return time_txt
+    txt = list(map(float, txt))
+    txt = str(txt[0]*60 + txt[1])
+    return txt
+
 def requests_get(url: str):
-    sleep(3)
+    sleep(2)
     cnt = 0
     e = False
     while cnt < 5:
@@ -30,7 +44,7 @@ def requests_get(url: str):
 def make_date_list() -> list:
     date_list = []
     for year in range(2021, 2022):
-        for month in range(1, 13):
+        for month in range(3, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
                 if date_txt > "20210400":
@@ -88,7 +102,9 @@ def get_race(soup, race_id: str) -> list:
     race_data_01 = soup.find(class_="RaceData01")
     race_data_01 = race_data_01.text.strip().replace("\n", "").replace(" ", "")
     race_data_01 = race_data_01.split("/")
-    race += [race_data_01[1][0], race_data_01[1][1:]]
+    distance_txt = race_data_01[1][1:].split("(")
+
+    race += [race_data_01[1][0], distance_txt[0][:-1], distance_txt[1][:-1]]
     race.append(race_data_01[2].split(":")[1])
     race.append(race_data_01[3].split(":")[1])
 
@@ -100,9 +116,10 @@ def get_race(soup, race_id: str) -> list:
         elif i == 3:
             race.append(data +" "+ race_data_02[i+1])
         elif i == 6:
-            race.append(data +" "+ race_data_02[i+1] +" "+ race_data_02[i+2])
+            race.append((data +" "+ race_data_02[i+1] +" "+ race_data_02[i+2]))
 
-    return [tuple(race)]
+    race = tuple(map(strip_function, race))
+    return [race]
 
 def get_race_result(soup, race_id: str) -> list:
     result = []
@@ -119,6 +136,9 @@ def get_race_result(soup, race_id: str) -> list:
             elif j == 4:
                 txt = td.text.strip()
                 res += [txt[0], txt[1]]
+            elif j == 7:
+                txt = time_to_seconds(td.text.strip())
+                res.append(txt)
             elif j == 14:
                 txt = td.text.split("(")
                 if len(txt) == 1:
@@ -127,7 +147,8 @@ def get_race_result(soup, race_id: str) -> list:
                     res += [txt[0], txt[1][:-1]]
             else:
                 res.append(td.text.strip())
-        result.append(tuple(res))
+        res = tuple(map(strip_function, res))
+        result.append(res)
 
     return result
 
@@ -165,12 +186,13 @@ def main():
         get_race_from_id(race_id)
 
 def test():
+    make_database.make_database()
     race_id = "202107010109"
     get_race_from_id(race_id)
 
 if __name__ == "__main__":
-    main()
-    #test()
+    #main()
+    test()
     print("="*40)
     print(ERROR_DATE)
     print(ERROR_RACE_ID)
