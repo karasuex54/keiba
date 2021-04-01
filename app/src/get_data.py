@@ -27,7 +27,7 @@ def time_to_seconds(time_txt: str) -> str:
     return txt
 
 def requests_get(url: str):
-    sleep(2)
+    sleep(1.5)
     cnt = 0
     e = False
     while cnt < 5:
@@ -43,8 +43,8 @@ def requests_get(url: str):
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2021, 2022):
-        for month in range(3, 13):
+    for year in range(2019, 2022):
+        for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
                 if date_txt > "20210400":
@@ -191,8 +191,8 @@ def test():
     get_race_from_id(race_id)
 
 if __name__ == "__main__":
-    #main()
-    test()
+    main()
+    #test()
     print("="*40)
     print(ERROR_DATE)
     print(ERROR_RACE_ID)

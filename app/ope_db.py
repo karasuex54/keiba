@@ -86,4 +86,27 @@ def get_columns(N_hourse:int = 18):
 # ===================================================
 
 def use_database():
-    N_horse = 18
+    res = []
+
+    columns = tuple(get_columns()) + tuple(["top_number"])
+    N = len(columns)
+    races = read_races()
+    results = read_results()
+
+    results_index = 0
+    res.append(columns)
+    for race in races:
+        r = race
+        top_number = "0"
+        race_id = race[0]
+        while results_index < len(results):
+            if race_id != results[results_index][1]:
+                break
+            r += results[results_index]
+            if top_number == "0":
+                top_number = results[results_index][4]
+            results_index += 1
+        r += tuple([-1 for i in range(len(columns) - 1 - len(r))] + [top_number])
+        res.append(r)
+
+    return res

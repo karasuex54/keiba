@@ -23,14 +23,16 @@ def get_results_columns():
 # ===================================================
 
 def use_database():
-    pass
+    db = od.use_database()
+    return db
 
 # ===================================================
 
 def test():
-    results = od.get_columns()
-    for r in results:
-        print(r)
+    db = use_database()
+    for d in db:
+        print(len(d))
+        print(d)
 
 if __name__ == "__main__":
     test()
