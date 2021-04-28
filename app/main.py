@@ -31,8 +31,7 @@ def use_database():
 def test():
     db = use_database()
     for d in db:
-        print(len(d))
-        print(d)
+        print(",".join([str(i) for i in d]))
 
 if __name__ == "__main__":
     test()

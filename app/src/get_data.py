@@ -27,7 +27,7 @@ def time_to_seconds(time_txt: str) -> str:
     return txt
 
 def requests_get(url: str):
-    sleep(1.5)
+    sleep(2)
     cnt = 0
     e = False
     while cnt < 5:
@@ -43,11 +43,11 @@ def requests_get(url: str):
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2019, 2022):
+    for year in range(2015, 2022):
         for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
-                if date_txt > "20210400":
+                if date_txt > "20210500":
                     break
                 date_list.append(date_txt)
     return date_list
@@ -171,7 +171,8 @@ def get_race_from_id(race_id: str):
     make_database.insert_races(race)
 
     result = get_race_result(soup, race_id)
-    make_database.insert_results(result)
+    print(result)
+    #make_database.insert_results(result)
 
 # ===================================================
 
@@ -187,12 +188,12 @@ def main():
 
 def test():
     make_database.make_database()
-    race_id = "202107010109"
+    race_id = "201701020309"
     get_race_from_id(race_id)
 
 if __name__ == "__main__":
-    main()
-    #test()
+    #main()
+    test()
     print("="*40)
     print(ERROR_DATE)
     print(ERROR_RACE_ID)
