@@ -1,6 +1,6 @@
 # other
-.csv
-.db
+*.csv
+*.db
 
 # vscode
 .vscode/
