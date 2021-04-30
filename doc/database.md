@@ -17,6 +17,7 @@
 | place     | TEXT | -           | race place        |
 | grade     | TEXT | -           | race grade        |
 | other     | TEXT | -           | other infomation  |
+| hold_date | TEXT | -           | hold at date      |
 
 ## RESULTS
 
@@ -34,10 +35,10 @@
 | jockey_id     | TEXT | -           | jockey id                    |
 | finish        | TEXT | -           | finish time  (s)             |
 | margin        | TEXT | -           | margin                       |
-| popular       | TEXT | -           | popular                      |
-| odds          | TEXT | -           | win odds                     |
-| g-3f          | TEXT | -           | time last three furlongs (s) |
 | corner        | TEXT | -           | order of passing corners     |
-| stable        | TEXT | -           | stable id                    |
+| g-3f          | TEXT | -           | time last three furlongs (s) |
+| odds          | TEXT | -           | win odds                     |
+| popular       | TEXT | -           | popular                      |
 | weight        | TEXT | -           | horse weight (kg)            |
 | weight_dif    | TEXT | -           | horse weight difference (kg) |
+| stable        | TEXT | -           | stable id                    |

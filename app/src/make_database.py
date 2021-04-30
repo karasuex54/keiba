@@ -37,13 +37,13 @@ def make_database():
         jockey_id TEXT,
         finish TEXT,
         margin TEXT,
-        popular TEXT,
-        odds TEXT,
-        g_3f TEXT,
         corner TEXT,
-        stable_id TEXT,
+        g_3f TEXT,
+        odds TEXT,
+        popular TEXT,
         weight TEXT,
-        weight_dif TEXT
+        weight_dif TEXT,
+        stable_id TEXT
     )""")
 
     conn.commit()
@@ -73,8 +73,8 @@ def insert_results(result):
     cur.executemany("""
     REPLACE INTO results (
         id, race_id, ord, post, number, horse_id, sex, age,
-        penalty, jockey_id, finish, margin, popular, odds, g_3f,
-        corner, stable_id, weight, weight_dif
+        penalty, jockey_id, finish, margin, corner, g_3f,
+        odds, popular, weight, weight_dif, stable_id
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, result)
 
