@@ -42,3 +42,14 @@
 | weight        | TEXT | -           | horse weight (kg)            |
 | weight_dif    | TEXT | -           | horse weight difference (kg) |
 | stable        | TEXT | -           | stable id                    |
+
+## PEDIGREES
+| Column    | Type | Options     | Description             |
+| ----      | ---- | ----        | ----                    |
+| horse_id  | TEXT | PRIMARY KEY | horse id                |
+| b_ml      | TEXT | -           | horse's father          |
+| b_ml_ml   | TEXT | -           | horse's father's father |
+| b_ml_fml  | TEXT | -           | horse's father's mother |
+| b_fml     | TEXT | -           | horse's mother          |
+| b_fml_ml  | TEXT | -           | horse's mother's father |
+| b_fml_fml | TEXT | -           | horse's mother's mother |

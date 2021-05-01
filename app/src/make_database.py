@@ -46,6 +46,18 @@ def make_database():
         stable_id TEXT
     )""")
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS pedigrees (
+        id TEXT PRIMARY KEY,
+        b_ml TEXT,
+        b_ml_ml TEXT,
+        b_ml_fml TEXT,
+        b_fml TEXT,
+        b_fml_ml TEXT,
+        b_fml_fml TEXT
+    )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -80,3 +92,36 @@ def insert_results(result):
 
     conn.commit()
     conn.close()
+
+def insert_pedigrees(pedig):
+    DB_name = "keiba.db"
+    conn = sqlite3.connect(DB_name)
+    cur = conn.cursor()
+
+    cur.executemany("""
+    REPLACE INTO pedigrees (
+        id, b_ml, b_ml_ml, b_ml_fml,
+        b_fml, b_fml_ml, b_fml_fml
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, pedig)
+
+    conn.commit()
+    conn.close()
+
+# ===================================================
+
+def select_pedigrees(horse_id)-> list:
+    DB_name = "keiba.db"
+    conn = sqlite3.connect(DB_name)
+    cur = conn.cursor()
+
+    cur.execute("""
+    SELECT * From pedigrees WHERE id = ?
+    """, (horse_id, ))
+
+    res = cur.fetchall()
+
+    conn.commit()
+    conn.close()
+
+    return res

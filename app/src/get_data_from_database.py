@@ -43,7 +43,7 @@ def requests_get(url: str):
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2018, 2022):
+    for year in range(2017, 2022):
         for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
@@ -91,6 +91,28 @@ def get_race_id_list():
     return race_id_list
 
 # ===================================================
+def get_horse_pedigree(horse_id: str):
+    res = make_database.select_pedigrees(horse_id)
+    if res:
+        return
+
+    pedig = [horse_id]
+    URL = "https://db.netkeiba.com/horse/" + horse_id
+
+    r, e = requests_get(URL)
+    if e == False:
+        print("Error:", horse_id)
+        ERROR_RACE_ID.append(horse_id)
+        return
+
+    soup = BeautifulSoup(r.content, "lxml")
+    table = soup.find(class_="blood_table")
+    pedig += [a.get("href").split("/")[-2] for a in table.find_all("a")]
+    pedig = [tuple(pedig)]
+
+    make_database.insert_pedigrees(pedig)
+
+# ===================================================
 def get_race(soup, race_id: str) -> list:
     race = [race_id]
     race_data = soup.find(class_="mainrace_data")
@@ -105,7 +127,7 @@ def get_race(soup, race_id: str) -> list:
     race_data_01 = race_data_01.split("/")
     surface, distance = race_data_01[0][0],re.findall("[0-9]+",race_data_01[0])[0]
     rotation, weather = race_data_01[0][1], race_data_01[1].split(":")[1]
-    condition = race_data_01[2].split(":")[1]
+    condition = race_data_01[2].replace("芝:","").replace("ダート:","")
     race += [surface, distance, rotation, weather, condition]
 
     race_data_02 = race_data.find(class_="smalltxt").text
@@ -147,6 +169,10 @@ def get_race_result(soup, race_id: str) -> list:
                 res.append(txt)
         res = tuple(map(strip_function, res))
         result.append(res)
+    for res in result:
+        horse_id = res[5]
+        get_horse_pedigree(horse_id)
+
     return result
 
 def get_race_from_id(race_id: str):
@@ -170,6 +196,7 @@ def get_race_from_id(race_id: str):
     result = get_race_result(soup, race_id)
     make_database.insert_results(result)
 
+
 # ===================================================
 
 def main():
@@ -184,8 +211,11 @@ def main():
 
 def test():
     make_database.make_database()
-    race_id = "201701020309"
+    horse_id = "20131055391"
+    race_id = "199708030410"
     get_race_from_id(race_id)
+    #get_horse_pedigree(horse_id)
+    #make_database.select_pedigrees(horse_id)
 
 if __name__ == "__main__":
     main()
