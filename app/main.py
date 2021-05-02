@@ -22,16 +22,19 @@ def get_results_columns():
 
 # ===================================================
 
-def use_database():
-    db = od.use_database()
+def use_database(race_id:str = ""):
+    db = od.use_database(race_id)
     return db
 
 # ===================================================
 
-def test():
-    db = use_database()
+def main():
+    db = use_database("202109021211")
     for d in db:
         print(",".join([str(i) for i in d]))
 
+def test():
+    pass
+
 if __name__ == "__main__":
-    test()
+    main()

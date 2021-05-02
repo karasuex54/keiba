@@ -17,7 +17,6 @@
 | place     | TEXT | -           | race place        |
 | grade     | TEXT | -           | race grade        |
 | other     | TEXT | -           | other infomation  |
-| hold_date | TEXT | -           | hold at date      |
 
 ## RESULTS
 

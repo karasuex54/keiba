@@ -5,7 +5,7 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-import make_database
+#import make_database
 
 ERROR_DATE = []
 ERROR_RACE_ID = []
@@ -195,7 +195,79 @@ def get_race_from_id(race_id: str):
 
     result = get_race_result(soup, race_id)
     make_database.insert_results(result)
+# ===================================================
+def get_target_race(soup, race_id: str) -> list:
+    race = [race_id]
+    race_name = soup.find(class_="RaceName")
+    if race_name == None:
+        return []
+    race.append(race_name.text.strip())
 
+    race_data_01 = soup.find(class_="RaceData01")
+    race_data_01 = race_data_01.text.strip().replace("\n", "").replace(" ", "")
+    race_data_01 = race_data_01.split("/")
+    distance_txt = race_data_01[1][1:].split("(")
+
+    race += [race_data_01[1][0], distance_txt[0][:-1], distance_txt[1][:-1]]
+    race.append(race_data_01[2].split(":")[1])
+    race.append(race_data_01[3].split(":")[1][0])
+
+    race_data_02 = soup.find(class_="RaceData02")
+    race_data_02 = race_data_02.text.strip().splitlines()
+    for i, data in enumerate(race_data_02):
+        if i == 1:
+            race.append(data)
+        elif i == 3:
+            race.append(data +" "+ race_data_02[i+1])
+        elif i == 6:
+            race.append((data +" "+ race_data_02[i+1] +" "+ race_data_02[i+2]))
+
+    race = list(map(strip_function, race))
+    return race
+
+def get_target_horses(soup, race_id:str) -> list:
+    horses = []
+    table = soup.find(class_="Shutuba_Table")
+    for i, tr in enumerate(table.find_all("tr")[2:]):
+        horse = [race_id+str(i+1).zfill(2), race_id]
+        for j, td in enumerate(tr.find_all("td")):
+            txt = td.text.strip()
+            if j in [2, 9, 10, 11, 12]:
+                continue
+            elif j in [3, 6, 7]:
+                href = td.find("a").get("href")
+                if href[-1] == "/":
+                    href = href[:-1]
+                horse.append(href.split("/")[-1])
+            elif j in [4]:
+                horse += [txt[0],txt[1]]
+            elif j in [8]:
+                txt = txt.split("(")
+                if len(txt) == 1:
+                    horse += ["", ""]
+                else:
+                    horse += [txt[0], txt[1][:-1]]
+            else:
+                horse.append(txt)
+        h = horse
+        horse = h[:2]+[-1]+h[2:9]+[-1]*6+h[10:]+[h[9]]
+        horses.append(horse)
+    return horses
+
+def get_target(race_id: str):
+    URL = "https://race.netkeiba.com/race/shutuba.html?race_id=" + race_id
+
+    r, e = requests_get(URL)
+    if e == False:
+        print("Error:", race_id)
+        ERROR_RACE_ID.append(race_id)
+        return
+
+    soup = BeautifulSoup(r.content, "lxml")
+    race = get_target_race(soup, race_id)
+    hors = get_target_horses(soup, race_id)
+
+    return race, hors
 
 # ===================================================
 
@@ -210,16 +282,13 @@ def main():
         get_race_from_id(race_id)
 
 def test():
-    make_database.make_database()
-    horse_id = "20131055391"
-    race_id = "199708030410"
-    get_race_from_id(race_id)
-    #get_horse_pedigree(horse_id)
-    #make_database.select_pedigrees(horse_id)
+    race, hors = get_target("202109021211")
+    print(race)
+    print(hors)
 
 if __name__ == "__main__":
-    main()
-    #test()
+    #main()
+    test()
     print("="*40)
     print(ERROR_DATE)
     print(ERROR_RACE_ID)
