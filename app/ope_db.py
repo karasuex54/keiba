@@ -99,7 +99,7 @@ def use_database(race_id:str = ""):
         print("please input race id")
         return
     res = []
-    columns = tuple(get_columns()) + tuple(["top_number"])
+    columns = tuple(get_columns())
     N = len(columns)
     pedigrees = read_pedigrees()
     races = read_races()
@@ -109,9 +109,10 @@ def use_database(race_id:str = ""):
         r = race
         result = results[r[0]]
         top_number = result[0][4]
+        result.sort(key=lambda x:int(x[4]))
         for i in result:
             r += tuple(i)+tuple(pedigrees[i[5]])
-        r += tuple([-1 for i in range(N - 1 - len(r))] + [top_number])
+        r += tuple([-1 for i in range(N - len(r))])
         res.append(r)
 
     race, hors = gdfd.get_target(race_id)

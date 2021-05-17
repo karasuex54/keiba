@@ -5,7 +5,7 @@ from time import sleep
 import requests
 from bs4 import BeautifulSoup
 
-#import make_database
+import make_database
 
 ERROR_DATE = []
 ERROR_RACE_ID = []
@@ -43,7 +43,7 @@ def requests_get(url: str):
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2017, 2022):
+    for year in range(2015, 2017):
         for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
@@ -287,8 +287,8 @@ def test():
     print(hors)
 
 if __name__ == "__main__":
-    #main()
-    test()
+    main()
+    #test()
     print("="*40)
     print(ERROR_DATE)
     print(ERROR_RACE_ID)
