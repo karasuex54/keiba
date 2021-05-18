@@ -55,26 +55,19 @@ def make_date_list() -> list:
 # ===================================================
 
 def get_race_id_from_date(date: str):
-    global ERROR_DATE
-
     race_id_from_date = []
-
     URL = "https://db.netkeiba.com/race/list/" + date
-
     r, e = requests_get(URL)
     if e == False:
         print("Error:", date)
         ERROR_DATE.append(date)
         return []
-
     soup = BeautifulSoup(r.content, "lxml")
-
     for a in soup.find_all("a", href=re.compile("/race/20")):
         href = a.get("href")
         if href[-1] == "/":
             href = href[:-1]
         race_id_from_date.append(href.split("/")[-1])
-
     return race_id_from_date
 
 def get_race_id_list():
