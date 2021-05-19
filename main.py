@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2019, 2022):
+    for year in range(2014, 2017):
         for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
