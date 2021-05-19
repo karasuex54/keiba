@@ -4,12 +4,12 @@ from tqdm import tqdm
 
 def make_date_list() -> list:
     date_list = []
-    for year in range(2014, 2017):
+    for year in range(2012, 2014):
         for month in range(1, 13):
             for day in range(1, 32):
                 date_txt = str(year) + str(month).zfill(2) + str(day).zfill(2)
-                if date_txt > "20210600":
-                    break
+                if date_txt < "20140114":continue
+                if date_txt > "20210600":break
                 date_list.append(date_txt)
     return date_list
 
